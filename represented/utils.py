@@ -6,6 +6,11 @@ from cytoolz import itertoolz
 from represented import configs
 
 
+def split(l, split_size):
+    for i in range(0, len(l), split_size):
+        yield l[i:i + split_size]
+
+
 def get_sliding_windows(window_size, tokens):
     res = list(itertoolz.sliding_window(window_size, tokens))
     return res
@@ -15,6 +20,7 @@ def load_pos_words(file_name: str
                    ) -> Set[str]:
     p = configs.Dirs.words / f'{file_name}.txt'
     res = p.read_text().split('\n')
+    res.remove('')
     return set(res)
 
 

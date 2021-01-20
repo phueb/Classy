@@ -8,11 +8,8 @@ from sklearn.linear_model import LogisticRegression
 from sortedcontainers import SortedSet
 from sortedcontainers import SortedDict
 
-from preppy import PartitionedPrep as TrainPrep
 from categoryeval.probestore import ProbeStore
 
-from represented.word_sets import excluded
-from represented.params import PrepParams
 from represented.docs import load_docs
 from represented.utils import get_sliding_windows
 from represented.memory import set_memory_limit
@@ -24,10 +21,7 @@ CORPUS_NAME = 'childes-20191206'
 PROBES_NAME = 'sem-all'
 
 docs = load_docs(CORPUS_NAME)
-params = PrepParams(num_types=None)  # TODO num types
-prep = TrainPrep(docs, **attr.asdict(params))
-
-probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, prep.store.w2id, excluded=excluded)
+probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, prep.store.w2id)
 
 # /////////////////////////////////////////////////////////////////
 

@@ -21,4 +21,7 @@ Step 3: Evaluate and compare classification performance between models and repre
 - A small collection of simple classifiers
 - Example scripts that demonstrate how to train a classifier to predict part-of-speech labels 
 
+## Custom Dependencies
+
+* [CategoryEval](https://github.com/phueb/CategoryEval): has probe words for testing
 

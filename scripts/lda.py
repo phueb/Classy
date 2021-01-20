@@ -6,15 +6,12 @@ Research questions:
 import attr
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-from preppy import PartitionedPrep as TrainPrep
 from categoryeval.probestore import ProbeStore
 
-from represented.word_sets import excluded
-from represented.params import PrepParams
 from represented.docs import load_docs
 from represented.memory import set_memory_limit
 from represented.representation import make_probe_reps_median_split
-from represented.representation import get_probe_contexts
+from represented.contexts import get_probe_contexts
 
 # /////////////////////////////////////////////////////////////////
 
@@ -22,10 +19,7 @@ CORPUS_NAME = 'childes-20191206'
 PROBES_NAME = 'sem-all'
 
 docs = load_docs(CORPUS_NAME)
-params = PrepParams(num_types=None)  # TODO num types
-prep = TrainPrep(docs, **attr.asdict(params))
-
-probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, prep.store.w2id, excluded=excluded)
+probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, prep.store.w2id)
 
 # /////////////////////////////////////////////////////////////////
 

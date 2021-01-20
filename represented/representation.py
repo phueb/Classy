@@ -1,13 +1,11 @@
 
 from collections import Counter
-from typing import Set, List, Optional, Tuple, Dict
+from typing import Set, Optional, Tuple, Dict
 
 import numpy as np
 import pyprind
 from sklearn.preprocessing import normalize
-from sortedcontainers import SortedSet, SortedDict
-
-from wordplay.utils import get_sliding_windows
+from sortedcontainers import SortedSet
 
 
 def make_bow_probe_representations(windows_mat: np.ndarray,
@@ -70,6 +68,8 @@ def make_probe_reps_median_split(probe2contexts: Dict[str, Tuple[str]],
     """
     num_context_types = len(context_types)
     probes = SortedSet(probe2contexts.keys())
+    assert '' not in probes
+
     num_probes = len(probe2contexts)
     context2col_id = {c: n for n, c in enumerate(context_types)}
 
@@ -79,6 +79,9 @@ def make_probe_reps_median_split(probe2contexts: Dict[str, Tuple[str]],
         probe_contexts = probe2contexts[p]
         num_probe_contexts = len(probe_contexts)
         num_in_split = num_probe_contexts // 2
+
+        if len(probe_contexts) < 2:  # otherwise, cannot split
+            raise RuntimeError(f'WARNING: Excluding {p} because it has less than 2 contexts ({probe_contexts})')
 
         # get either first half or second half of contexts
         if split_id == 0:
@@ -103,26 +106,3 @@ def make_probe_reps_median_split(probe2contexts: Dict[str, Tuple[str]],
     return probe_reps
 
 
-def get_probe_contexts(probes: SortedSet,
-                       tokens: List[str],
-                       context_size: int,
-                       preserve_order: bool,
-                       ) -> Tuple[Dict[str, Tuple[str]], SortedSet]:
-    # get all probe contexts
-    probe2contexts = SortedDict({p: [] for p in probes})
-    contexts_in_order = get_sliding_windows(context_size, tokens)
-    context_types = SortedSet()
-    for n, context in enumerate(contexts_in_order[:-context_size]):
-        next_context = contexts_in_order[n + 1]
-        target = next_context[-1]
-        if target in probes:
-
-            if preserve_order:
-                probe2contexts[target].append(context)
-                context_types.add(context)
-            else:
-                single_word_contexts = [(w,) for w in context]
-                probe2contexts[target].extend(single_word_contexts)
-                context_types.update(single_word_contexts)
-
-    return probe2contexts, context_types
