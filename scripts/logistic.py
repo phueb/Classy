@@ -3,36 +3,30 @@ Research questions:
 1. How well can categories be distinguished in partition 1 vs. partition 2?
 """
 
-import attr
 from sklearn.linear_model import LogisticRegression
 from sortedcontainers import SortedSet
 from sortedcontainers import SortedDict
 
 from categoryeval.probestore import ProbeStore
 
-from represented.docs import load_docs
-from represented.utils import get_sliding_windows
-from represented.memory import set_memory_limit
-from represented.representation import make_probe_reps_median_split
+from classy.io import load_tokens
+from classy.utils import get_sliding_windows
+from classy.memory import set_memory_limit
+from classy.representation import make_probe_reps_median_split
 
-# /////////////////////////////////////////////////////////////////
 
-CORPUS_NAME = 'childes-20191206'
+CORPUS_NAME = 'childes-20201026'
 PROBES_NAME = 'sem-all'
-
-docs = load_docs(CORPUS_NAME)
-probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, prep.store.w2id)
-
-# /////////////////////////////////////////////////////////////////
-
 ORDERED_REPRESENTATIONS = True
 CONTEXT_SIZE = 2
 
-# ///////////////////////////////////////////////////////////////// representations
+tokens = load_tokens(CORPUS_NAME)
+w2id = {w: i for i, w in enumerate(set(tokens))}
+probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, w2id)
 
 # get all probe contexts
 probe2contexts = SortedDict({p: [] for p in probe_store.types})
-contexts_in_order = get_sliding_windows(CONTEXT_SIZE, prep.store.tokens)
+contexts_in_order = get_sliding_windows(CONTEXT_SIZE, tokens)
 y_words = SortedSet(contexts_in_order)
 yw2row_id = {c: n for n, c in enumerate(y_words)}
 context_types = SortedSet()
@@ -54,7 +48,6 @@ print(context_types)
 x1 = make_probe_reps_median_split(probe2contexts, context_types, split_id=0)
 x2 = make_probe_reps_median_split(probe2contexts, context_types, split_id=1)
 
-# /////////////////////////////////////////////////////////////////
 
 set_memory_limit(prop=1.0)
 

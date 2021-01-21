@@ -14,32 +14,27 @@ instead, it ensures that for each probe, the same number of contexts occur in ea
 
 """
 from sklearn.metrics.pairwise import cosine_similarity
-import attr
 from tabulate import tabulate
 
 
 from categoryeval.probestore import ProbeStore
 from categoryeval.ba import calc_score
 
-from represented.representation import make_probe_reps_median_split
-from represented.contexts import get_probe_contexts
-from represented.docs import load_docs
-from represented.memory import set_memory_limit
+from classy.representation import make_probe_reps_median_split
+from classy.contexts import get_probe_contexts
+from classy.io import load_tokens
+from classy.memory import set_memory_limit
 
-# /////////////////////////////////////////////////////////////////
-
-CORPUS_NAME = 'childes-20191206'
+CORPUS_NAME = 'childes-20201026'
 PROBES_NAME = 'sem-all'  # careful: some probe reps might be zero vectors if they do not occur in part
-
-
-docs = load_docs(CORPUS_NAME)
-probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, prep.store.w2id)
-
-# ///////////////////////////////////////////////////////////////// parameters
-
 CONTEXT_SIZES = [1, 2, 3, 4]
 METRIC = 'ck'
 PRESERVE_WORD_ORDER = False
+
+tokens = load_tokens(CORPUS_NAME)
+w2id = {w: i for i, w in enumerate(set(tokens))}
+probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, w2id)
+
 
 if METRIC == 'ba':
     y_lims = [0.5, 1.0]
@@ -50,7 +45,6 @@ elif METRIC == 'f1':
 else:
     raise AttributeError('Invalid arg to "METRIC".')
 
-# /////////////////////////////////////////////////////////////////
 
 set_memory_limit(prop=0.9)
 
@@ -60,7 +54,7 @@ split_id2scores = {split_id: [] for split_id in split_ids}
 for context_size in CONTEXT_SIZES:
 
     probe2contexts, context_types = get_probe_contexts(probe_store.types,
-                                                       prep.store.tokens,
+                                                       tokens,
                                                        context_size,
                                                        PRESERVE_WORD_ORDER)
 
@@ -85,5 +79,4 @@ rows = [['1'] + split_id2scores[0],
         ['2'] + split_id2scores[1]]
 print(tabulate(rows,
                headers=headers,
-               tablefmt='latex',
                floatfmt=".4f"))

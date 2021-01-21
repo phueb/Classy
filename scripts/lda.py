@@ -3,33 +3,27 @@ Research questions:
 1. How well can categories be distinguished in partition 1 vs. partition 2?
 """
 
-import attr
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
 from categoryeval.probestore import ProbeStore
 
-from represented.docs import load_docs
-from represented.memory import set_memory_limit
-from represented.representation import make_probe_reps_median_split
-from represented.contexts import get_probe_contexts
+from classy.io import load_tokens
+from classy.memory import set_memory_limit
+from classy.representation import make_probe_reps_median_split
+from classy.contexts import get_probe_contexts
 
-# /////////////////////////////////////////////////////////////////
-
-CORPUS_NAME = 'childes-20191206'
+CORPUS_NAME = 'childes-20201026'
 PROBES_NAME = 'sem-all'
-
-docs = load_docs(CORPUS_NAME)
-probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, prep.store.w2id)
-
-# /////////////////////////////////////////////////////////////////
-
 PRESERVE_WORD_ORDER = True
 CONTEXT_SIZE = 3
 
-# ///////////////////////////////////////////////////////////////// representations
+tokens = load_tokens(CORPUS_NAME)
+w2id = {w: i for i, w in enumerate(set(tokens))}
+probe_store = ProbeStore(CORPUS_NAME, PROBES_NAME, w2id)
+
 
 probe2contexts, context_types = get_probe_contexts(probe_store.types,
-                                                   prep.store.tokens,
+                                                   tokens,
                                                    CONTEXT_SIZE,
                                                    PRESERVE_WORD_ORDER)
 
@@ -39,7 +33,6 @@ x2 = make_probe_reps_median_split(probe2contexts, context_types, split_id=1)
 # note: LDA classifier appears to use l2 normalization internally
 # because results are same if normalization is performed externally
 
-# /////////////////////////////////////////////////////////////////
 
 set_memory_limit(prop=1.0)
 

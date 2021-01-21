@@ -4,7 +4,7 @@
 </div>
 
 <div align="center">
- What linguistic abstractions (e.g. noun category) are represented in child-directed speech?
+ Train classifiers to predict lexical categories given lexical context in child-directed speech corpus.
 </div>
 
 
